@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система аренды авто</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        button, input {
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
+        }
+        body { background-color: #f8f9fa; }
+        .navbar { margin-bottom: 30px; box-shadow: 0 2px 4px rgb(245, 2, 2); }
+        .car-card { transition: transform 0.2s; border: none; box-shadow: 0 4px 6px rgb(11, 164, 162); }
+        .car-card:hover { transform: translateY(-5px); }
+        .btn-add { background: linear-gradient(45deg, #0b9c9c, #218838); border: none; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">🚗 RentalCars Admin</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link active" href="index.html">Главная</a>
+                <a class="nav-link" href="search.html">Поиск</a>
+                <a class="nav-link" href="dashboard.html">Статистика</a>
+                <a class="nav-link" href="manage.html">Управление</a>
+                <button class="btn btn-outline-light btn-sm ms-3" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card p-4 mb-5 shadow-sm">
+                    <h4 class="mb-3 text-secondary">Добавить новый автомобиль</h4>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <input type="text" id="brand" class="form-control" placeholder="Марка (напр. Tesla)">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" id="model" class="form-control" placeholder="Модель">
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" id="price" class="form-control" placeholder="Цена/день">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <button onclick="addCar()" class="btn btn-success btn-add w-100 fw-bold">Добавить авто</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="mb-4">Автопарк в наличии</h3>
+        <div id="carList" class="row row-cols-1 row-cols-md-3 g-4">
+            </div>
+    </div>
+
+    <script>
+        // Проверка авторизации
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = 'login.html';
+        }
+
+        async function addCar() {
+            const data = {
+                brand: document.getElementById('brand').value,
+                model: document.getElementById('model').value,
+                pricePerDay: document.getElementById('price').value
+            };
+            if(!data.brand || !data.model || !data.pricePerDay) return alert("Заполни все поля!");
+
+            await fetch('http://localhost:3000/api/vehicles', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            location.reload();
+        }
+
+        async function loadCars() {
+            const res = await fetch('http://localhost:3000/api/vehicles');
+            const cars = await res.json();
+            const list = document.getElementById('carList');
+            
+            cars.forEach(c => {
+                list.innerHTML += `
+                    <div class="col">
+                        <div class="card h-100 car-card">
+                            <div class="card-body">
+                                <h5 class="card-title text-uppercase fw-bold">${c.brand}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">${c.model}</h6>
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-primary fs-6">$${c.pricePerDay}/день</span>
+                                    <span class="text-success small">● Доступно</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        loadCars();
+    </script>
+</body>
+</html>

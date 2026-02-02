@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление флотом</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        button, input {
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
+    }
+        body { background-color: #f8f9fa; }
+        .manage-card { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgb(133, 20, 20); }
+        .car-row { border-bottom: 1px solid #50b379; transition: background 0.2s; }
+        .car-row:hover { background-color: #fdfdfd; }
+        .car-row:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">🚗 RentalCars Admin</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="index.html">Главная</a>
+                <a class="nav-link" href="search.html">Поиск</a>
+                <a class="nav-link active" href="manage.html">Управление</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="manage-card p-4">
+            <h3 class="mb-4 fw-bold"><i class="bi bi-gear-fill me-2"></i>Редактирование парка</h3>
+            <div id="manageList">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadManageList() {
+            const res = await fetch('http://localhost:3000/api/vehicles');
+            const cars = await res.json();
+            const list = document.getElementById('manageList');
+            list.innerHTML = ''; 
+
+            cars.forEach(c => {
+                list.innerHTML += `
+                    <div class="row car-row py-3 align-items-center">
+                        <div class="col-md-4">
+                            <h6 class="mb-0 fw-bold">${c.brand} ${c.model}</h6>
+                            <small class="text-muted">ID: ${c._id}</small>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="price-${c._id}" value="${c.pricePerDay}">
+                                <button class="btn btn-primary" onclick="updatePrice('${c._id}')">Обновить</button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button class="btn btn-outline-danger btn-sm" onclick="deleteCar('${c._id}')">
+                                <i class="bi bi-trash"></i> Удалить
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function updatePrice(id) {
+            const newPrice = document.getElementById(`price-${id}`).value;
+            await fetch(`http://localhost:3000/api/vehicles/${id}`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ pricePerDay: newPrice })
+            });
+            alert('Данные обновлены!');
+            loadManageList();
+        }
+
+        async function deleteCar(id) {
+            if (confirm('Вы уверены? Это действие нельзя отменить.')) {
+                await fetch(`http://localhost:3000/api/vehicles/${id}`, { method: 'DELETE' });
+                loadManageList();
+            }
+        }
+        loadManageList();
+    </script>
+</body>
+</html>
