@@ -1,5 +1,159 @@
 # Rental Project 🚗
 
+A simple car rental web application built with Node.js, Express and MongoDB.
+
+## Overview
+
+This project provides a lightweight backend and static frontend pages for searching and managing rental vehicles.
+
+- Backend: Node.js + Express
+- Database: MongoDB (via Mongoose)
+- Frontend: Plain HTML/CSS/JavaScript served from `public/`
+- API: REST endpoints with CORS enabled
+
+## Requirements
+
+- Node.js (v14+)
+- MongoDB running locally at `mongodb://localhost:27017`
+- npm or yarn
+
+## Quick Start
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/aaniisssaaa/adfinal.git
+cd rental-project
+```
+
+2. Install dependencies
+
+```bash
+npm install
+```
+
+3. Start MongoDB (example for Windows)
+
+```powershell
+# start mongod if installed
+mongod
+```
+
+4. Run the server
+
+```bash
+node server.js
+```
+
+The server runs at http://localhost:3000
+
+## Project Structure
+
+```
+rental-project/
+├── server.js           # Main application
+├── package.json        # Project metadata and dependencies
+├── public/             # Static frontend files
+│   ├── index.html
+│   ├── search.html
+│   ├── login.html
+│   └── dashboard.html
+├── .vscode/
+│   └── launch.json
+└── README.md
+```
+
+## API Endpoints
+
+### POST /api/login
+Simple demo login endpoint (example credentials in the project are `admin` / `12345`).
+
+Request body:
+
+```json
+{ "username": "admin", "password": "12345" }
+```
+
+Response:
+
+```json
+{ "success": true }
+```
+
+### GET /api/search
+Search vehicles by brand and maximum price.
+
+Query parameters:
+- `brand` (optional)
+- `maxPrice` (optional)
+
+Example:
+
+```
+GET /api/search?brand=Toyota&maxPrice=100
+```
+
+### GET /api/stats
+Aggregation endpoint returning counts and average price grouped by brand.
+
+### GET /api/vehicles
+Return all vehicles.
+
+### POST /api/vehicles
+Create a new vehicle. Body example:
+
+```json
+{
+  "brand": "Tesla",
+  "model": "Model 3",
+  "pricePerDay": 150,
+  "status": "available"
+}
+```
+
+### DELETE /api/vehicles/:id
+Delete vehicle by ID.
+
+## Implementation Notes
+
+- The `vehicleSchema` defines a compound index to improve query performance:
+
+```js
+vehicleSchema.index({ brand: 1, pricePerDay: -1 });
+```
+
+- `/api/stats` uses MongoDB Aggregation Pipeline to compute statistics.
+- CORS is enabled for the frontend.
+
+## Examples
+
+Search via curl:
+
+```bash
+curl "http://localhost:3000/api/search?brand=Toyota&maxPrice=100"
+```
+
+## Security
+
+This project uses demo credentials and is not production-ready. For production use:
+
+- Store credentials securely and hash passwords (bcrypt)
+- Use JWT or another secure auth mechanism
+- Use environment variables for sensitive configuration
+
+## License
+
+MIT
+
+## Repository
+
+https://github.com/aaniisssaaa/adfinal
+
+---
+
+Last updated: February 2026
+# Rental Project 🚗
+
 Полнофункциональное веб-приложение для аренды автомобилей с Node.js, Express и MongoDB.
 
 ## Описание
